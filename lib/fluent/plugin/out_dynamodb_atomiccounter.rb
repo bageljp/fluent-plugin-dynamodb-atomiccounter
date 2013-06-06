@@ -2,7 +2,7 @@
 module Fluent
 
   class DynamoDBAtomicCounterOutput < Fluent::BufferedOutput
-    Fluent::Plugin.register_output('dynamodb', self)
+    Fluent::Plugin.register_output('dynamodb_atomiccounter', self)
   
     include DetachMultiProcessMixin
   
