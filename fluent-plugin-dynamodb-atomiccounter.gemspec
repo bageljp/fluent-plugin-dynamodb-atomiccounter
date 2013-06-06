@@ -2,13 +2,13 @@
 $:.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name        = "fluent-plugin-dynamodb"
-  gem.description = "Amazon DynamoDB output plugin for Fluent event collector"
-  gem.homepage    = "https://github.com/gonsuke/fluent-plugin-dynamodb"
+  gem.name        = "fluent-plugin-dynamodb-atomiccounter"
+  gem.description = "Amazon DynamoDB atomic counter plugin for Fluent event collector"
+  gem.homepage    = "https://github.com/bageljp/fluent-plugin-dynamodb-atomiccounter"
   gem.summary     = gem.description
   gem.version     = File.read("VERSION").strip
-  gem.authors     = ["Takashi Matsuno"]
-  gem.email       = "g0n5uk3@gmail.com"
+  gem.authors     = ["Keisuke Kadoyama"]
+  gem.email       = "kadoyama.keisuke@gmail.com"
   gem.has_rdoc    = false
   #gem.platform    = Gem::Platform::RUBY
   gem.files       = `git ls-files`.split("\n")

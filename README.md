@@ -2,7 +2,7 @@
 
 ##Installation
 
-    $ fluent-gem install fluent-plugin-dynamodb
+    $ fluent-gem install fluent-plugin-dynamodb-atomiccounter
 
 ##Configuration
 
