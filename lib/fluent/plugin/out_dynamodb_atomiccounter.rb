@@ -100,7 +100,7 @@ module Fluent
         if item.exists?
           item.attributes.update {|u| u.add :count => count }
         else
-          item = @table.items.put(@hash_key_value => @hostname, :count => count)
+          item = @table.items.put(@hash_key_value => k, :count => v)
         end
       end      
     end
