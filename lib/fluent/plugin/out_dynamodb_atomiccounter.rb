@@ -29,7 +29,7 @@ module Fluent
       super
   
       @timef = TimeFormatter.new(@time_format, @localtime)
-      @hostname = `hostname`
+      @hostname = `hostname`.strip
     end
 
     def start
