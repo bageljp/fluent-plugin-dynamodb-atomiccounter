@@ -70,45 +70,39 @@ module Fluent
     end
 
     def format(tag, time, record)
-      if !record.key?(@hash_key_value)
-        record[@hash_key_value] = @hostname
-      end
-
-      record['time'] = @timef.format(time)
-
       record.to_msgpack
     end
 
     def write(chunk)
       batch_size = 0
-      batch_records = []
+      count = Hash.new(0)
+
       chunk.msgpack_each {|record|
-        $log.info "record: ${record}"
-        # XXX. ここで record からリクエストパス取るかも
-        batch_records << record
-        batch_size += record.to_json.length # FIXME: heuristic
+        json = record.to_json
+        count[@hostname + json['path']] += 1
+        batch_size += json.length
         if batch_records.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
-          increment(batch_records.size)
-          batch_records.clear
+          flush(count)
+          count.clear
           batch_size = 0
         end
       }
-      unless batch_records.empty?
-        increment(batch_records.size)
+      unless count.empty?
+        flush(count)
       end
     end
 
-    def increment(count, path)
-      $log.info "increment(count = #{count})"
+    def flush(count)
+      $log.info "flush(count = #{count})"
 
-      item = @table.items[@hostname]
-  
-      if item.exists?
-        item.attributes.update {|u| u.add :count => count }
-      else
-        item = @table.items.put(@hash_key_value => @hostname, :count => count)
-      end
-      
+      count.each_pair do |k, v|
+        item = @table.items[k]
+        if item.exists?
+          item.attributes.update {|u| u.add :count => count }
+        else
+          item = @table.items.put(@hash_key_value => @hostname, :count => count)
+        end
+      end      
     end
   end
 
