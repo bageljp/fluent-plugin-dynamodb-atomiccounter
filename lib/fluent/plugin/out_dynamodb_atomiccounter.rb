@@ -98,7 +98,7 @@ module Fluent
       count.each_pair do |k, v|
         item = @table.items[k]
         if item.exists?
-          item.attributes.update {|u| u.add :count => count }
+          item.attributes.update {|u| u.add :count => v }
         else
           item = @table.items.put(@hash_key_value => k, :count => v)
         end
