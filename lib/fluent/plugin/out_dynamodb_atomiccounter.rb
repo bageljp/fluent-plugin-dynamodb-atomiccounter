@@ -81,7 +81,7 @@ module Fluent
         json = record.to_json
         count[@hostname + json['path']] += 1
         batch_size += json.length
-        if batch_records.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
+        if count.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
           flush(count)
           count.clear
           batch_size = 0
