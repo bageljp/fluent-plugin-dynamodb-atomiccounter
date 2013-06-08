@@ -79,7 +79,13 @@ module Fluent
 
       chunk.msgpack_each {|record|
         json = record.to_json
-        count[@hostname + json['path']] += 1
+        path = json['path'] || ''
+
+        next if path.empty?
+
+        count[:path] = path
+        count[@hostname + '::' + path] += 1
+
         batch_size += json.length
         if count.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
           flush(count)
@@ -93,16 +99,14 @@ module Fluent
     end
 
     def flush(count)
-      $log.info "flush(count = #{count})"
-
       count.each_pair do |k, v|
         item = @table.items[k]
         if item.exists?
           item.attributes.update {|u| u.add :count => v }
         else
-          item = @table.items.put(@hash_key_value => k, :count => v)
+          item = @table.items.put(@hash_key_value => k, :path => count[:path], :count => v)
         end
-      end      
+      end
     end
   end
 
