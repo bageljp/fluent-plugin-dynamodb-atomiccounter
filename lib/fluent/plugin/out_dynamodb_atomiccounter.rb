@@ -65,8 +65,9 @@ module Fluent
     def valid_table(table_name)
       @table = @dynamo_db.tables[table_name]
       @table.load_schema
-      raise ConfigError, "Currently composite table is not supported." if @table.has_range_key?
+      #raise ConfigError, "Currently composite table is not supported." if @table.has_range_key?
       @hash_key_value = @table.hash_key.name
+      #@range_key_value = @table.range_key.name
     end
 
     def format(tag, time, record)
@@ -75,36 +76,38 @@ module Fluent
 
     def write(chunk)
       batch_size = 0
-      count = Hash.new(0)
+      counts = Hash.new(0)
 
       chunk.msgpack_each {|record|
-        json = record.to_json
-        path = json['path'] || ''
+        path = record['path'] || ''
 
         next if path.empty?
 
-        count[:path] = path
-        count[@hostname + '::' + path] += 1
+        #counts[:path] = path
+        #counts[@hostname + '::' + path] += 1
+        counts[path] += 1
 
-        batch_size += json.length
-        if count.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
-          flush(count)
-          count.clear
+        batch_size += record.to_s.length
+        if counts.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
+          flush(counts)
+          counts.clear
           batch_size = 0
         end
       }
-      unless count.empty?
-        flush(count)
+      unless counts.empty?
+        flush(counts)
       end
     end
 
-    def flush(count)
-      count.each_pair do |k, v|
+    def flush(counts)
+      #$log.info "counts=#{counts}"
+      counts.each_pair do |k, v|
         item = @table.items[k]
         if item.exists?
-          item.attributes.update {|u| u.add :count => v }
+          item.attributes.update {|u| u.add :counts => v }
         else
-          item = @table.items.put(@hash_key_value => k, :path => count[:path], :count => v)
+          item = @table.items.put(@hash_key_value => k, :counts => v)
+          #item = @table.items.put(@hash_key_value => k, @range_key_value => count[:path], :counts => v)
         end
       end
     end
