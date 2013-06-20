@@ -6,8 +6,8 @@ module Fluent
 
     include DetachMultiProcessMixin
 
-    BATCHWRITE_ITEM_LIMIT = 25
-    BATCHWRITE_CONTENT_SIZE_LIMIT = 1024*1024
+    ITEM_LIMIT = 25
+    CONTENT_SIZE_LIMIT = 1024*1024
 
     def initialize
       super
@@ -24,12 +24,12 @@ module Fluent
     config_param :dynamo_db_endpoint, :string, :default => nil
     config_param :time_format, :string, :default => nil
     config_param :detach_process, :integer, :default => 2
+    config_param :count_key, :string, :default => 'path'
 
     def configure(conf)
       super
   
       @timef = TimeFormatter.new(@time_format, @localtime)
-      @hostname = `hostname`.strip
     end
 
     def start
@@ -65,9 +65,7 @@ module Fluent
     def valid_table(table_name)
       @table = @dynamo_db.tables[table_name]
       @table.load_schema
-      #raise ConfigError, "Currently composite table is not supported." if @table.has_range_key?
       @hash_key_value = @table.hash_key.name
-      #@range_key_value = @table.range_key.name
     end
 
     def format(tag, time, record)
@@ -79,16 +77,14 @@ module Fluent
       counts = Hash.new(0)
 
       chunk.msgpack_each {|record|
-        path = record['path'] || ''
+        count_key = record[@count_key] || ''
 
-        next if path.empty?
+        next if count_key.empty?
 
-        #counts[:path] = path
-        #counts[@hostname + '::' + path] += 1
-        counts[path] += 1
+        counts[count_key] += 1
 
         batch_size += record.to_s.length
-        if counts.size >= BATCHWRITE_ITEM_LIMIT || batch_size >= BATCHWRITE_CONTENT_SIZE_LIMIT
+        if counts.size >= ITEM_LIMIT || batch_size >= CONTENT_SIZE_LIMIT
           flush(counts)
           counts.clear
           batch_size = 0
@@ -107,7 +103,6 @@ module Fluent
           item.attributes.update {|u| u.add :counts => v }
         else
           item = @table.items.put(@hash_key_value => k, :counts => v)
-          #item = @table.items.put(@hash_key_value => k, @range_key_value => count[:path], :counts => v)
         end
       end
     end
