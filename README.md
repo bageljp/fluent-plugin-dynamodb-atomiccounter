@@ -1,4 +1,4 @@
-# Amazon DynamoDB AtinucCounter output plugin for Fluent event collector
+# Amazon DynamoDB AtinucCounter output plugin
 
 ##Installation
 
@@ -51,6 +51,10 @@ Specify table name, hash attribute name and throughput as you like. fluent-plugi
     <td>"/sample.html"</td>
     <td>"847"</td>
   </tr>
+  <tr>
+    <td>"/about/"</td>
+    <td>"373"</td>
+  </tr>
 </table>
 
 
@@ -91,7 +95,7 @@ So you can easily setup multi-region redundancy as follows.
 
 <table> 
   <tr>
-    <td>Copyright</td><td>Copyright (c) 2013- Keisuke Kadoyama</td>
+    <td>Copyright</td><td>Copyright (c) 2013 - Keisuke Kadoyama</td>
   </tr>
   <tr>
     <td>License</td><td>Apache License, Version 2.0</td>
