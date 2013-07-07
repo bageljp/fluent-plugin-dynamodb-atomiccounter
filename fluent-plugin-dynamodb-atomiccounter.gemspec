@@ -3,7 +3,7 @@ $:.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name        = "fluent-plugin-dynamodb-atomiccounter"
-  gem.description = "Amazon DynamoDB atomic counter plugin for Fluent event collector"
+  gem.description = "Amazon DynamoDB AtomicCounter plugin for Fluent event collector"
   gem.homepage    = "https://github.com/bageljp/fluent-plugin-dynamodb-atomiccounter"
   gem.summary     = gem.description
   gem.version     = File.read("VERSION").strip

@@ -1,6 +1,6 @@
 Release 0.0.1 - 2013/06/06
 
-  * Feature Dynamodb atomic counter
+  * Feature Dynamodb AtomicCounter
   * Renamed fluent-plugin-dynamodb-atomiccounter
 
 Release 0.1.8 - 2012/07/10
